@@ -5,8 +5,8 @@ class Game
     
      @name = ""
      @guesses = []
-     @secret_word = secret_word()
-     @progress = []
+     @secret_word = ""
+     @progress_display = []
  
    end
    
@@ -35,13 +35,38 @@ class Game
  
    end  
  
+ 
+   #random word generator and state update
    def generate_word()
-     
-     word = File.readlines("dictionary.txt").sample.split('').pop().join('')
-     
-     puts word
+ 
+     word = File.readlines("dictionary.txt").sample.split('')
+     word.pop(2)
+     word.length() > 4 && word.length() < 13 ? @secret_word = word : generate_word()
  
    end  
+ 
+ 
+   def update_progress()
+     if !@guesses[0]
+       @secret_word.map { |letter| @progress_display.push("-")}
+     end  
+     if @guesses[0] 
+       @progress_display.map.with_index { |letter, index| 
+         if @guesses[@guesses.length() - 1] == @secret_word[index]
+           letter = @secret_word[index]
+         end    
+       } 
+     end
+     print @progress_display.join('')
+     
+   end  
+ 
+   def make_guess()
+     puts "Enter a letter to make a guess..."
+     player_guess = gets.chomp
+     @guesses.push(player_guess)
+   end  
+ 
  
    def new_game()
  
@@ -49,11 +74,14 @@ class Game
      sleep(2)
      generate_word()
      puts "...done!"
- 
+     sleep(1)
+     update_progress()
+     puts ""
+     make_guess()
+     update_progress()
+     
    end  
  
-   def secret_word()
-   end  
  
    def run_new_game()
      get_name()
