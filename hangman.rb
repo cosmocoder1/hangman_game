@@ -41,7 +41,8 @@ class Game
    def game_end()
      sleep(4)
      system("clear")
-     run_new_game()
+     newGame = Game.new
+     newGame.run_new_game()
    end  
  
  
@@ -50,7 +51,12 @@ class Game
  
      word = File.readlines("dictionary.txt").sample.split('')
      word.pop(2)
-     (word.length() > 4 && word.length() < 13) ? @secret_word = word : generate_word()
+     if word.length() > 4 && word.length() < 13 
+       @secret_word = word 
+     else generate_word()
+     end  
+ 
+     puts @secret_word
  
    end  
  
@@ -62,11 +68,12 @@ class Game
      end
  
      if @turn_counter == 0
-       puts "GAME OVER!"
+       puts "GAME OVER!  The correct word was #{@secret_word.join('')}"
        game_end()
      else
        @turn_counter -= 1
        puts "You have #{@turn_counter} guesses remaining..."
+       make_guess()
      end  
    end  
    
@@ -78,10 +85,12 @@ class Game
      if !@guesses[0]
        @secret_word.map { |letter| @progress_display.push("-")}
      elsif
+       #word guesses
        @guesses[0] && @guesses[@guesses.length() - 1].length() > 1
-       if @guesses[@guesses.length() - 1] == @secret_word.join('')
-         turn_count()
-       end  
+         if @guesses[@guesses.length() - 1] == @secret_word.join('')
+           @progress_display = @guesses[@guesses.length() - 1]
+           turn_count()
+         end  
      elsif  
      #second guess and beyond  
       @guesses[0] && @secret_word.include?(@guesses[@guesses.length() - 1]) 
@@ -90,22 +99,21 @@ class Game
            @progress_display[index] = @secret_word[index]
          end    
        }
+       turn_count()
  
      #incorrect guesses  
      else 
-       puts "Sorry, please guess again..."   
+       puts "Sorry, please guess again..."  
+       turn_count()
      end
  
-     turn_count()
- 
-     print @progress_display.join('')
-     puts ""
-     puts ""
-     make_guess()
      
    end  
  
    def make_guess()
+     print @progress_display.join('')
+     puts ""
+     puts ""
      sleep(2)
      puts "Enter a single letter or guess the word..."
      player_guess = gets.chomp
