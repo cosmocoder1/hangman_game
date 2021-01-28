@@ -36,6 +36,14 @@ class Game
       new_game()  
     else
       load_game()
+      puts "test block"
+      puts @secret_word.inspect()
+      puts @name.inspect()
+      puts @guesses.inspect()
+      puts @progress_display.inspect()
+      puts @turn_counter.inspect()
+      run_saved_game()
+      
     end 
 
   end  
@@ -127,6 +135,7 @@ class Game
     if player_guess == "save"
       save_game()
       puts "your game has been saved for later..."
+      game_end()
     end    
 
     @guesses.push(player_guess)
@@ -154,15 +163,15 @@ class Game
 
   def save_game()
     File.open("./saved.yml", 'w') { |f| YAML.dump([] << self, f) }
-    exit
-    puts "your game has been saved!"
   end
 
   
   def load_game()
     begin
-       yaml = YAML.load_file("../saved.yml")
+       puts "load game block"
+       yaml = YAML.load_file("./saved.yml")
        @name = yaml[0].name
+       yaml = YAML.load_file("./saved.yml")
        @guesses = yaml[0].guesses
        @secret_word = yaml[0].secret_word
        @progress_display = yaml[0].progress_display
@@ -173,14 +182,18 @@ class Game
        @secret_word = []
        @progress_display = []
        @turn_counter = []
-
     end
   end  
-
 
   def run_new_game()
     get_name()
     intro()
+  end 
+  
+  def run_saved_game()
+    puts "welcome back, #{@name}"
+    update_progress()
+    make_guess()
   end  
 
 end  
