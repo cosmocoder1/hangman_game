@@ -1,9 +1,11 @@
 require 'yaml'
 
-class Game
- attr_accessor :name 
 
-  def initialize()
+
+class Game
+ attr_accessor :name, :guesses, :secret_word, :progress_display, :turn_counter
+
+  def initialize
    
     @name = ""
     @guesses = []
@@ -13,14 +15,14 @@ class Game
 
   end
   
-  def get_name()
+  def get_name
 
     puts "Please enter your name..."
     @name = gets.chomp
     
   end
 
-  def intro()
+  def intro
 
     puts "Welcome to Hangman, #{@name}!"
     sleep(2)
@@ -33,47 +35,39 @@ class Game
     game_type = gets.chomp
 
     if game_type == "1"
-      new_game()  
+      new_game 
     else
-      load_game()
-      puts "test block"
-      puts @secret_word.inspect()
-      puts @name.inspect()
-      puts @guesses.inspect()
-      puts @progress_display.inspect()
-      puts @turn_counter.inspect()
-      run_saved_game()
+      get_game_name
+      load_game
+      run_saved_game
       
     end 
 
   end  
 
-  def game_end()
+  def game_end
     sleep(5)
     system("clear")
     newGame = Game.new
-    newGame.run_new_game()
+    newGame.run_new_game
   end  
 
 
   #random word generator and state update
-  def generate_word()
+  def generate_word
 
     word = File.readlines("dictionary.txt").sample.split('')
     word.pop(2)
   
     if word.length() > 4 && word.length() < 13 
       @secret_word = word 
-    else 
-      puts 'else block'
-      generate_word()
     end  
 
     puts @secret_word
 
   end  
 
-  def turn_count()
+  def turn_count
 
     if !@progress_display.include?("-")
       puts "Congratulations, you won the game!"
@@ -91,8 +85,7 @@ class Game
   end  
   
 
-  def update_progress()
-
+  def update_progress
 
     #first guess 
     if !@guesses[0]
@@ -117,13 +110,13 @@ class Game
     #incorrect guesses  
     else 
       puts "Sorry, please guess again..."  
-      turn_count()
+      turn_count
     end
 
     
   end  
 
-  def make_guess()
+  def make_guess
     print @progress_display.join('')
     puts ""
     puts ""
@@ -133,9 +126,9 @@ class Game
 
     #handle save
     if player_guess == "save"
-      save_game()
+      save_game
       puts "your game has been saved for later..."
-      game_end()
+      game_end
     end    
 
     @guesses.push(player_guess)
@@ -143,7 +136,7 @@ class Game
   end  
 
 
-  def new_game()
+  def new_game
 
     puts "Wonderful!  Type \"save\" at anytime to save the game."
     puts ""
@@ -160,37 +153,37 @@ class Game
     
   end 
 
+  def get_game_name
+    games_list = YAML.load_file("./saved_games")
+    puts games_list
+    puts "please enter the name of the game you want to load"
+  end  
 
-  def save_game()
-    File.open("./saved.yml", 'w') { |f| YAML.dump([] << self, f) }
+  def save_game
+    puts "enter a name so you can find your game later on..."
+    game_name = gets.chomp
+    File.open("./saved_games/#{get_name}.yml", 'w') { |f| YAML.dump([] << self, f) }
+    exit
   end
 
-  
-  def load_game()
-    begin
-       puts "load game block"
+  def load_game
        yaml = YAML.load_file("./saved.yml")
        @name = yaml[0].name
-       yaml = YAML.load_file("./saved.yml")
        @guesses = yaml[0].guesses
        @secret_word = yaml[0].secret_word
        @progress_display = yaml[0].progress_display
        @turn_counter = yaml[0].turn_counter
-      rescue
-       @name = []
-       @guesses = []
-       @secret_word = []
-       @progress_display = []
-       @turn_counter = []
-    end
+      
   end  
 
-  def run_new_game()
+  def run_new_game
+
     get_name()
     intro()
+    
   end 
   
-  def run_saved_game()
+  def run_saved_game
     puts "welcome back, #{@name}"
     update_progress()
     make_guess()
@@ -200,3 +193,7 @@ end
 
 newGame = Game.new
 newGame.run_new_game()
+
+
+
+
