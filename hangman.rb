@@ -4,31 +4,29 @@ class Game
  attr_accessor :name, :guesses, :secret_word, :progress_display, :turn_counter
 
   def initialize
-   
     @name = ""
     @guesses = []
     @secret_word = ""
     @progress_display = []
     @turn_counter = 10
-
   end
   
   def get_name
-
     puts "Enter your name to begin..."
     @name = gets.chomp
-    
   end
 
   def intro
     puts "Welcome to Hangman, #{@name}!"
-    sleep(2)
+      sleep(2)
     puts "Will you be..."
-    sleep(1)
+    puts ""
+      sleep(1)
     puts "(1) Starting a new game..."
     puts "...or (2) continuing a saved game?"
-    game_type = gets.chomp
+    puts ""
 
+    game_type = gets.chomp
     if game_type == "1"
       new_game 
     else
@@ -44,11 +42,10 @@ class Game
     newGame.run_new_game
   end  
 
-  #random word generator and state update
   def generate_word
-    word = File.readlines("dictionary.txt").sample.split('')
+    word = File.readlines("dictionary.txt").sample.downcase.split('')
     word.pop(2)
-      @secret_word = word 
+    @secret_word = word 
   end  
 
   def turn_count
@@ -60,7 +57,6 @@ class Game
     if @turn_counter == 0
       puts "GAME OVER!  The correct word was #{@secret_word.join('')}"
       game_end
-
     else
       @turn_counter -= 1
       puts "You have #{@turn_counter} guesses remaining..."
@@ -69,7 +65,6 @@ class Game
   end  
   
   def update_progress
-
     #first guess 
     if !@guesses[0]
       @secret_word.map { |letter| @progress_display.push("-")}
@@ -81,21 +76,19 @@ class Game
           turn_count
         end  
     elsif  
-    #second guess and beyond  
-     @guesses[0] && @secret_word.include?(@guesses[@guesses.length() - 1]) 
+      #second guess and beyond  
+      @guesses[0] && @secret_word.include?(@guesses[@guesses.length() - 1]) 
       @progress_display.map.with_index { |letter, index| 
         if @guesses[@guesses.length() - 1] == @secret_word[index]
           @progress_display[index] = @secret_word[index]
         end    
       }
       turn_count
-
     #incorrect guesses  
     else 
       puts "Sorry, please guess again..."  
       turn_count
     end
-
   end  
 
   def make_guess
@@ -117,15 +110,15 @@ class Game
   end  
 
   def new_game
-    puts "Wonderful!  Type \"save\" at anytime to save the game."
+    puts "enter \"save\" at anytime to save the game for later."
     puts ""
-    puts "Choosing a random word now..."
-    sleep(2)
+    puts "Choosing a random word..."
+      sleep(2)
     generate_word
     puts ""
     puts "...done!"
     puts ""
-    sleep(1)
+      sleep(1)
     update_progress
     puts ""
     make_guess
@@ -138,6 +131,16 @@ class Game
   end
 
   def load_game()
+    if Dir.empty?('./saved_games')
+      puts "there are currently no saved games..."
+        sleep(1)
+      puts "starting new game now..."
+        sleep(3)
+      system('clear')
+      new_game
+    end  
+
+      puts ""
       games_list = Dir.entries("./saved_games")
       games_list.shift(2)
       trimmed_list = games_list.map { |title| title_arr = title.split('')
@@ -148,11 +151,11 @@ class Game
       puts "please enter the name of the game you want to load"
       game_name = gets.chomp
 
-      if !trimmed_list.include?(game_name)
-        puts "invalid file name, please enter a file from above"
+    if !trimmed_list.include?(game_name)
+        puts "invalid file name"
         sleep(1)
         load_game
-      end    
+    end    
        
       yaml = YAML.load_file("./saved_games/#{game_name}.yml")
       @name = yaml[0].name
@@ -160,7 +163,6 @@ class Game
       @secret_word = yaml[0].secret_word
       @progress_display = yaml[0].progress_display
       @turn_counter = yaml[0].turn_counter
-      
   end  
 
   def run_new_game
@@ -169,7 +171,9 @@ class Game
   end 
   
   def run_saved_game
+    puts ""
     puts "welcome back, #{@name}"
+    puts ""
     update_progress
     make_guess
   end  
